@@ -50,7 +50,7 @@ struct EmojiArtDocumentView: View {
                             .onLongPressGesture {
                                 selectEmogi(for: emoji)
                             }
-                            .background(Circle().fill(Color.blue).frame(width: CGFloat(emoji.size)*zoomScale, height: CGFloat(emoji.size)*zoomScale).position(position(for: emoji, in: geometry)).opacity(isSelcted(for: emoji) ? 0 : 1))
+                            .background(Circle().fill(Color.blue).frame(width: CGFloat(emoji.size)*zoomScale, height: CGFloat(emoji.size)*zoomScale).position(position(for: emoji, in: geometry)).opacity(isSelcted(for: emoji) ? 1 : 0))
                             .gesture(dragSelected())
                     }
                     if isSomethingSelcted {
@@ -80,7 +80,7 @@ struct EmojiArtDocumentView: View {
         }
     }
     private func isSelcted(for emoji: EmojiArtModel.Emoji) -> Bool {
-        selected.contains(emoji) ? false : true
+        selected.contains(emoji) ? true : false
     }
     private func deselectAll() {
         selected.removeAll()
