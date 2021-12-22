@@ -94,4 +94,7 @@ class EmojiArtDocument: ObservableObject
             emojiArt.emojis[index].size = scale
         }
     }
+    func deleteEmoji(_ emoji: EmojiArtModel.Emoji) {
+        emojiArt.deleteEmoji(emoji)
+    }
 }

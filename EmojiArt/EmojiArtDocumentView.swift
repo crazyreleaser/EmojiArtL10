@@ -53,6 +53,13 @@ struct EmojiArtDocumentView: View {
                             .background(Circle().fill(Color.blue).frame(width: defaultSelectBackCircleSize*zoomScale, height: defaultSelectBackCircleSize*zoomScale).position(position(for: emoji, in: geometry)).opacity(isSelcted(for: emoji) ? 0 : 1))
                             .gesture(dragSelected())
                     }
+                    if isSomethingSelcted {
+                        Image(systemName: "xmark.circle.fill").font(.system(size: 60)).foregroundColor(.red)
+                            .position(x: geometry.size.width - 100, y: 100)
+                            .onTapGesture {
+                                deleteSelected()
+                            }
+                    }
                 }
             }
             .clipped()
@@ -64,10 +71,12 @@ struct EmojiArtDocumentView: View {
     }
     
     private func selectEmogi(for emoji: EmojiArtModel.Emoji) {
-        if selected.contains(emoji) {
-            selected.remove(emoji)
-        } else {
-            selected.insert(emoji)
+        withAnimation() {
+            if selected.contains(emoji) {
+                selected.remove(emoji)
+            } else {
+                selected.insert(emoji)
+            }
         }
     }
     private func isSelcted(for emoji: EmojiArtModel.Emoji) -> Bool {
@@ -75,6 +84,14 @@ struct EmojiArtDocumentView: View {
     }
     private func deselectAll() {
         selected.removeAll()
+    }
+    private func deleteSelected() {
+        withAnimation() {
+            selected.forEach() { emoji in
+                document.deleteEmoji(emoji)
+            }
+            selected.removeAll()
+        }
     }
     
     // MARK: - Drag and Drop
