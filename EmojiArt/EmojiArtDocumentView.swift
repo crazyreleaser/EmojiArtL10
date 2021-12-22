@@ -51,7 +51,7 @@ struct EmojiArtDocumentView: View {
                                 selectEmogi(for: emoji)
                             }
                             .background(Circle().fill(Color.blue).frame(width: defaultSelectBackCircleSize*zoomScale, height: defaultSelectBackCircleSize*zoomScale).position(position(for: emoji, in: geometry)).opacity(isSelcted(for: emoji) ? 0 : 1))
-                            .gesture(dragSelected().simultaneously(with: zoomGesture()))
+                            .gesture(dragSelected())
                     }
                 }
             }
@@ -144,10 +144,21 @@ struct EmojiArtDocumentView: View {
     private func zoomGesture() -> some Gesture {
         MagnificationGesture()
             .updating($gestureZoomScale) { latestGestureScale, gestureZoomScale, _ in
-                gestureZoomScale = latestGestureScale
+                if !isSomethingSelcted {
+                    gestureZoomScale = latestGestureScale
+                } else {
+                    selected.forEach() { emoji in
+                        let newScale = Int((CGFloat(emoji.size) * latestGestureScale).rounded(.toNearestOrAwayFromZero))
+                        document.scalingEmoji(emoji, by: newScale)
+                    }
+                }
             }
             .onEnded { gestureScaleAtEnd in
-                steadyStateZoomScale *= gestureScaleAtEnd
+                if !isSomethingSelcted {
+                    steadyStateZoomScale *= gestureScaleAtEnd
+                } else {
+                    updateSelectedData()
+                }
             }
     }
     
@@ -205,16 +216,20 @@ struct EmojiArtDocumentView: View {
             }
             .onEnded { finalDragGestureValue in
                 if isSomethingSelcted {
-                    var tmpSelected = Set<EmojiArtModel.Emoji>()
-                    selected.forEach() { emoji in
-                        if let newCoordsEmoji = document.emojis.filter({ $0.id == emoji.id}).first {
-                            tmpSelected.insert(newCoordsEmoji)
-                        }
-                    }
-                    selected.removeAll()
-                    selected = tmpSelected
+                    updateSelectedData()
                 }
             }
+    }
+    
+    private func updateSelectedData() {
+        var tmpSelected = Set<EmojiArtModel.Emoji>()
+        selected.forEach() { emoji in
+            if let newDataEmoji = document.emojis.filter({ $0.id == emoji.id}).first {
+                tmpSelected.insert(newDataEmoji)
+            }
+        }
+        selected.removeAll()
+        selected = tmpSelected
     }
 
     // MARK: - Palette
