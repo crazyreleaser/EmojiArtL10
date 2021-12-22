@@ -77,6 +77,12 @@ class EmojiArtDocument: ObservableObject
             emojiArt.emojis[index].y += Int(offset.height)
         }
     }
+    func movingEmoji(_ emoji: EmojiArtModel.Emoji, by offset: CGPoint) { // at onDragging but not save
+        if let index = emojiArt.emojis.index(matching: emoji) {
+            emojiArt.emojis[index].x = Int(offset.x)
+            emojiArt.emojis[index].y = Int(offset.y)
+        }
+    }
     
     func scaleEmoji(_ emoji: EmojiArtModel.Emoji, by scale: CGFloat) {
         if let index = emojiArt.emojis.index(matching: emoji) {

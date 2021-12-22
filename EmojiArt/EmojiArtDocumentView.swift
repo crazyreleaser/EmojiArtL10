@@ -51,6 +51,7 @@ struct EmojiArtDocumentView: View {
                                 selectEmogi(for: emoji)
                             }
                             .background(Circle().fill(Color.blue).frame(width: defaultSelectBackCircleSize*zoomScale, height: defaultSelectBackCircleSize*zoomScale).position(position(for: emoji, in: geometry)).opacity(isSelcted(for: emoji) ? 0 : 1))
+                            .gesture(dragSelected().simultaneously(with: zoomGesture()))
                     }
                 }
             }
@@ -119,6 +120,7 @@ struct EmojiArtDocumentView: View {
             x: (location.x - panOffset.width - center.x) / zoomScale,
             y: (location.y - panOffset.height - center.y) / zoomScale
         )
+        print(location)
         return (Int(location.x), Int(location.y))
     }
     
@@ -179,10 +181,39 @@ struct EmojiArtDocumentView: View {
     private func panGesture() -> some Gesture {
         DragGesture()
             .updating($gesturePanOffset) { latestDragGestureValue, gesturePanOffset, _ in
-                gesturePanOffset = latestDragGestureValue.translation / zoomScale
+                    gesturePanOffset = latestDragGestureValue.translation / zoomScale
             }
             .onEnded { finalDragGestureValue in
-                steadyStatePanOffset = steadyStatePanOffset + (finalDragGestureValue.translation / zoomScale)
+                    steadyStatePanOffset = steadyStatePanOffset + (finalDragGestureValue.translation / zoomScale)
+            }
+    }
+    
+    @GestureState private var dragSelectedOffset: CGSize = CGSize.zero
+    private func dragSelected() -> some Gesture {
+        DragGesture()
+            .updating($dragSelectedOffset) { latestDragGestureValue, dragSelectedOffset, _ in
+                if isSomethingSelcted {
+                    dragSelectedOffset = latestDragGestureValue.translation / zoomScale
+                    selected.forEach() { emoji in
+                        let newCoords = CGPoint(
+                            x: emoji.x + Int(dragSelectedOffset.width),
+                            y: emoji.y + Int(dragSelectedOffset.height)
+                        )
+                        document.movingEmoji(emoji, by: newCoords)
+                    }
+                }
+            }
+            .onEnded { finalDragGestureValue in
+                if isSomethingSelcted {
+                    var tmpSelected = Set<EmojiArtModel.Emoji>()
+                    selected.forEach() { emoji in
+                        if let newCoordsEmoji = document.emojis.filter({ $0.id == emoji.id}).first {
+                            tmpSelected.insert(newCoordsEmoji)
+                        }
+                    }
+                    selected.removeAll()
+                    selected = tmpSelected
+                }
             }
     }
 
