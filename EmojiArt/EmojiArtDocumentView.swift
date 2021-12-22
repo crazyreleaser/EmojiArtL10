@@ -50,7 +50,7 @@ struct EmojiArtDocumentView: View {
                             .onLongPressGesture {
                                 selectEmogi(for: emoji)
                             }
-                            .background(Circle().fill(Color.blue).frame(width: defaultSelectBackCircleSize*zoomScale, height: defaultSelectBackCircleSize*zoomScale).position(position(for: emoji, in: geometry)).opacity(isSelcted(for: emoji) ? 0 : 1))
+                            .background(Circle().fill(Color.blue).frame(width: CGFloat(emoji.size)*zoomScale, height: CGFloat(emoji.size)*zoomScale).position(position(for: emoji, in: geometry)).opacity(isSelcted(for: emoji) ? 0 : 1))
                             .gesture(dragSelected())
                     }
                     if isSomethingSelcted {
